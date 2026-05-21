@@ -2,10 +2,15 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
 
 def ruleaza_eda_subset(cale_csv, nume_subset):
     print(f"\n" + "="*20 + f" ANALIZĂ EDA ORTODONTIE: {nume_subset} " + "="*20)
     df = pd.read_csv(cale_csv)
+    
+    # Ne asigurăm că directorul dedicat pentru grafice există
+    director_iesire = "Grafice_EDA"
+    os.makedirs(director_iesire, exist_ok=True)
     
     # a) Analiza valorilor lipsă (Cerința 6.a)
     print("\n[a] Gestiunea Valorilor Lipsă:")
@@ -29,7 +34,7 @@ def ruleaza_eda_subset(cale_csv, nume_subset):
         plt.xlabel(col)
         plt.ylabel('Numar Pacienti')
         plt.tight_layout()
-        plt.savefig(f"{nume_subset}_distributie_{col}.png")
+        plt.savefig(os.path.join(director_iesire, f"{nume_subset}_distributie_{col}.png"))
         plt.close()
         
     for col in coloane_categorice:
@@ -39,7 +44,7 @@ def ruleaza_eda_subset(cale_csv, nume_subset):
         plt.xlabel(col)
         plt.ylabel('Numar Pacienti')
         plt.tight_layout()
-        plt.savefig(f"{nume_subset}_countplot_{col}.png")
+        plt.savefig(os.path.join(director_iesire, f"{nume_subset}_countplot_{col}.png"))
         plt.close()
 
     # d) Detectarea outlierilor prin regula IQR (Cerința 6.d)
@@ -58,7 +63,7 @@ def ruleaza_eda_subset(cale_csv, nume_subset):
         sns.boxplot(x=df[col], color='lightblue')
         plt.title(f'Boxplot pentru {col} ({nume_subset})')
         plt.tight_layout()
-        plt.savefig(f"{nume_subset}_boxplot_{col}.png")
+        plt.savefig(os.path.join(director_iesire, f"{nume_subset}_boxplot_{col}.png"))
         plt.close()
 
     # e) Heatmap Corelații (Cerința 6.e)
@@ -67,7 +72,7 @@ def ruleaza_eda_subset(cale_csv, nume_subset):
     sns.heatmap(df_num.corr(), annot=True, fmt='.2f', cmap='mako', center=0, linewidths=0.5)
     plt.title(f'Heatmap-ul Corelatiilor ({nume_subset})')
     plt.tight_layout()
-    plt.savefig(f"{nume_subset}_heatmap_corelatii.png")
+    plt.savefig(os.path.join(director_iesire, f"{nume_subset}_heatmap_corelatii.png"))
     plt.close()
 
     # f) Analiza relațiilor cu variabila țintă - Violin Plots (Cerința 6.f)
@@ -78,13 +83,13 @@ def ruleaza_eda_subset(cale_csv, nume_subset):
         plt.xlabel('Recomandare Aparat (0=Nu, 1=Da)')
         plt.ylabel(col)
         plt.tight_layout()
-        plt.savefig(f"{nume_subset}_relatie_tinta_{col}.png")
+        plt.savefig(os.path.join(director_iesire, f"{nume_subset}_relatie_tinta_{col}.png"))
         plt.close()
 
 def main():
     ruleaza_eda_subset('train.csv', 'Train')
     ruleaza_eda_subset('test.csv', 'Test')
-    print("\n[Pasul 2] Analiza exploratorie completa! Graficele au fost salvate ca imagini .png.")
+    print("\n[Pasul 2] Analiza exploratorie completa! Graficele au fost salvate curat in folderul 'Grafice_EDA'.")
 
 if __name__ == "__main__":
     main()
