@@ -57,7 +57,7 @@ cale_matrice = "matrice_confuzie.png" if os.path.exists("matrice_confuzie.png") 
 # 3. Construirea interfeței grafice vizuale (Gradio 6+ layout compatibil)
 with gr.Blocks() as demo:
     gr.Markdown("# 🦷 Sistem Inteligent de Diagnostic Ortodontic (Proiect PCLP3)")
-    gr.Markdown("Aplicație clinică interactivă bazată pe modelul de Regresie Logistică ($Acuratețe: 91.33\%$).")
+    gr.Markdown("Aplicație clinică interactivă bazată pe modelul de Regresie Logistică (Acuratețe: 91.33%).")
     
     with gr.Tab("🔮 Diagnostic în Direct"):
         with gr.Row():
