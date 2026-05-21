@@ -46,7 +46,7 @@ def prezice_necesitate_aparat(varsta, gen, inghesuire, tip_muscatura, dificultat
     if predictie == 1:
         verdict = f"🔴 RECOMANDARE: APARAT DENTAR INDICAT\nModelul are o certitudine de {prob_da*100:.2f}% în acest diagnostic."
     else:
-        verdict = f"🟢 RECOMANDARE: TRATAMENT ORTODONTIC NEINFORMAT\nPacientul nu necesită aparat dentar în acest moment."
+        verdict = f"🟢 RECOMANDARE: TRATAMENT ORTODONTIC NEINDICAT\nPacientul nu necesită aparat dentar în acest moment."
         
     # Returnăm verdictul text și un dicționar pentru componenta de tip Label din Gradio
     return verdict, {"Nu are nevoie": prob_nu, "Are nevoie de aparat": prob_da}
