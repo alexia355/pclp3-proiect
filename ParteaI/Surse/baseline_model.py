@@ -16,8 +16,8 @@ def incarca_si_preproceseaza(cale_csv, is_train=True, mediana_inghesuire=None):
         mediana_inghesuire = df['Inghesuire_Dinti_mm'].median()
     df['Inghesuire_Dinti_mm'] = df['Inghesuire_Dinti_mm'].fillna(mediana_inghesuire)
     
-    # 3. One-Hot Encoding pentru variabilele categoriale
-    df = pd.get_dummies(df, columns=['Gen', 'Tip_Muscatura', 'Durere_Mandibula'], drop_first=True)
+    # 3. One-Hot Encoding complet (identic cu app.py pentru consistența interfeței)
+    df = pd.get_dummies(df, columns=['Gen', 'Tip_Muscatura', 'Durere_Mandibula'])
     
     return df, mediana_inghesuire
 
@@ -28,14 +28,15 @@ def main():
     df_train, mediana = incarca_si_preproceseaza('train.csv', is_train=True)
     df_test, _ = incarca_si_preproceseaza('test.csv', is_train=False, mediana_inghesuire=mediana)
     
-    # Aliniem coloanele în caz de categorii lipsă în test
-    df_train, df_test = df_train.align(df_test, join='left', axis=1, fill_value=0)
-    
-    # Separăm X (caracteristici) de y (variabila țintă)
+    # Separăm X (caracteristici) de y (variabila țintă) ÎNAINTE de aliniere
     X_train = df_train.drop(columns=['Recomandare_Aparat'])
-    y_train = df_train['Recomandare_Aparat']
+    y_train = df_train['Recomandare_Aparat'].astype(int)
+    
     X_test = df_test.drop(columns=['Recomandare_Aparat'])
-    y_test = df_test['Recomandare_Aparat']
+    y_test = df_test['Recomandare_Aparat'].astype(int)
+    
+    # Aliniem doar caracteristicile X în caz de categorii lipsă în test
+    X_train, X_test = X_train.align(X_test, join='left', axis=1, fill_value=0)
     
     print("[Pasul 3] Antrenare model de bază (Logistic Regression)...")
     model = LogisticRegression(max_iter=1000, random_state=42)
