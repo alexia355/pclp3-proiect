@@ -1,0 +1,11 @@
+# Excludem seturile de date brute si exportate
+*.csv
+
+# Excludem modelele salvate cu joblib
+*.pkl
+
+# Excludem folderul ascuns de cache al Python si IDE-ului
+__pycache__/
+.ipynb_checkpoints/
+.idea/
+.vscode/
