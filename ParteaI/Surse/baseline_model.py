@@ -8,10 +8,10 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 def incarca_si_preproceseaza(cale_csv, is_train=True, mediana_inghesuire=None):
     df = pd.read_csv(cale_csv)
     
-    # 1. Eliminăm coloana 'id' (nu are valoare predictivă)
+    # Eliminare coloana 'id' (care nu are valoare predictivă)
     df = df.drop(columns=['id'])
     
-    # 2. Tratarea valorilor lipsă prin imputare cu mediana de pe Train
+    # Tratarea valorilor lipsă prin imputare cu mediana de pe Train
     if is_train:
         mediana_inghesuire = df['Inghesuire_Dinti_mm'].median()
     df['Inghesuire_Dinti_mm'] = df['Inghesuire_Dinti_mm'].fillna(mediana_inghesuire)
@@ -24,18 +24,18 @@ def incarca_si_preproceseaza(cale_csv, is_train=True, mediana_inghesuire=None):
 def main():
     print("[Pasul 3] Încărcare date și preprocesare pentru Machine Learning...")
     
-    # Preprocesăm subseturile antrenare/testare
+    # Preprocesare subseturi antrenare/testare
     df_train, mediana = incarca_si_preproceseaza('train.csv', is_train=True)
     df_test, _ = incarca_si_preproceseaza('test.csv', is_train=False, mediana_inghesuire=mediana)
     
-    # Separăm X (caracteristici) de y (variabila țintă) ÎNAINTE de aliniere
+    # Separare X (caracteristici) de Y (variabila țintă) inainte de aliniere
     X_train = df_train.drop(columns=['Recomandare_Aparat'])
     y_train = df_train['Recomandare_Aparat'].astype(int)
     
     X_test = df_test.drop(columns=['Recomandare_Aparat'])
     y_test = df_test['Recomandare_Aparat'].astype(int)
     
-    # Aliniem doar caracteristicile X în caz de categorii lipsă în test
+    # Aliniere doar caracteristicile X în caz de categorii lipsă în test
     X_train, X_test = X_train.align(X_test, join='left', axis=1, fill_value=0)
     
     print("[Pasul 3] Antrenare model de bază (Logistic Regression)...")
@@ -45,7 +45,7 @@ def main():
     # Predicții pe setul de test
     y_pred = model.predict(X_test)
     
-    # Calculăm metricile oficiale solicitate în barem
+    # Calculare metrici oficiale
     acuratete = accuracy_score(y_test, y_pred)
     precizie = precision_score(y_test, y_pred)
     recall = recall_score(y_test, y_pred)
@@ -58,7 +58,7 @@ def main():
     print(f"Scor F1 (F1-Score):   {f1:.4f}")
     print("="*68)
     
-    # Generăm și salvăm Matricea de Confuzie grafică
+    # Generare && salvare matrice de confuzie grafica
     cm = confusion_matrix(y_test, y_pred)
     plt.figure(figsize=(5, 4))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Purples', 

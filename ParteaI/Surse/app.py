@@ -7,7 +7,7 @@ from baseline_model import incarca_si_preproceseaza
 
 print("[Bonus] Inițializare server Gradio conform specificațiilor din barem...")
 
-# 1. Pregătim modelul pentru interfață
+# Pregătire model pentru interfață
 df_train, mediana = incarca_si_preproceseaza('train.csv', is_train=True)
 X_train = df_train.drop(columns=['Recomandare_Aparat'])
 y_train = df_train['Recomandare_Aparat']
@@ -17,7 +17,7 @@ model.fit(X_train, y_train)
 
 structura_coloane = X_train.columns.tolist()
 
-# 2. Funcția de predicție avansată (returnează verdictul și dicționarul de probabilități)
+# Funcția de predicție avansată (returnează verdictul și dicționarul de probabilități)
 def prezice_necesitate_aparat(varsta, gen, inghesuire, tip_muscatura, dificultate, durere):
     date_pacient = pd.DataFrame([{
         'Varsta': int(varsta),
@@ -36,7 +36,7 @@ def prezice_necesitate_aparat(varsta, gen, inghesuire, tip_muscatura, dificultat
             
     date_procesate = date_procesate[structura_coloane]
     
-    # Calculăm probabilitățile pentru ambele clase (Cerința din barem: "se pot afișa probabilitățile fiecărei clase")
+    # Calculare probabilitățile pentru ambele clase
     probabilitati = model.predict_proba(date_procesate)[0]
     prob_nu = float(probabilitati[0])
     prob_da = float(probabilitati[1])
@@ -44,25 +44,25 @@ def prezice_necesitate_aparat(varsta, gen, inghesuire, tip_muscatura, dificultat
     predictie = model.predict(date_procesate)[0]
     
     if predictie == 1:
-        verdict = f"🔴 RECOMANDARE: APARAT DENTAR INDICAT\nModelul are o certitudine de {prob_da*100:.2f}% în acest diagnostic."
+        verdict = f"RECOMANDARE: APARAT DENTAR INDICAT\nModelul are o certitudine de {prob_da*100:.2f}% în acest diagnostic."
     else:
-        verdict = f"🟢 RECOMANDARE: TRATAMENT ORTODONTIC NEINDICAT\nPacientul nu necesită aparat dentar în acest moment."
+        verdict = f"RECOMANDARE: TRATAMENT ORTODONTIC NEINDICAT\nPacientul nu necesită aparat dentar în acest moment."
         
-    # Returnăm verdictul text și un dicționar pentru componenta de tip Label din Gradio
+    # Returnare verdict text și un dicționar pentru componenta de tip Label din Gradio
     return verdict, {"Nu are nevoie": prob_nu, "Are nevoie de aparat": prob_da}
 
-# Calea către matricea de confuzie salvată la Pasul 3
+# Calea către matricea de confuzie salvată
 cale_matrice = "matrice_confuzie.png" if os.path.exists("matrice_confuzie.png") else None
 
-# 3. Construirea interfeței grafice vizuale (Gradio 6+ layout compatibil)
+# Construirea interfeței grafice vizuale
 with gr.Blocks() as demo:
     gr.Markdown("# 🦷 Sistem Inteligent de Diagnostic Ortodontic (Proiect PCLP3)")
-    gr.Markdown("Aplicație clinică interactivă bazată pe modelul de Regresie Logistică (Acuratețe: 91.33%).")
+    gr.Markdown("Aplicație clinică interactivă bazată pe modelul de Regresie Logistică (Acuratețe: 92.00%).")
     
-    with gr.Tab("🔮 Diagnostic în Direct"):
+    with gr.Tab("Diagnostic în Direct"):
         with gr.Row():
             with gr.Column():
-                gr.Markdown("### 📋 Introducere Date Clinic")
+                gr.Markdown("Introducere Date Clinic")
                 varsta = gr.Slider(minimum=8, maximum=50, value=20, step=1, label="Vârstă (ani)")
                 gen = gr.Radio(choices=["Masculin", "Feminin"], value="Feminin", label="Gen")
                 inghesuire = gr.Slider(minimum=0.0, maximum=10.0, value=2.5, step=0.1, label="Înghesuire Dinți (mm)")
@@ -70,19 +70,19 @@ with gr.Blocks() as demo:
                 dificultate = gr.Slider(minimum=1, maximum=10, value=3, step=1, label="Dificultate Masticatie (1-10)")
                 durere = gr.Radio(choices=["Da", "Nu"], value="Nu", label="Prezență Durere Mandibulară")
                 
-                buton_analizeaza = gr.Button("🔮 Calculează Diagnostic", variant="primary")
+                buton_analizeaza = gr.Button("Calculează Diagnostic", variant="primary")
                 
             with gr.Column():
-                gr.Markdown("### 🩺 Rezultat Evaluare")
+                gr.Markdown("Rezultat Evaluare")
                 iesire_text = gr.Textbox(label="Verdict Final", interactive=False, lines=2)
                 iesire_procente = gr.Label(label="Probabilitățile Fiecărei Clase")
 
-    with gr.Tab("📊 Performanță Model (Vizualizări)"):
-        gr.Markdown("### 📈 Matricea de Confuzie obținută pe setul de Testare (200+ instanțe)")
+    with gr.Tab("Performanță Model (Vizualizări)"):
+        gr.Markdown("Matricea de Confuzie obținută pe setul de Testare")
         if cale_matrice:
             gr.Image(value=cale_matrice, label="Matrice de Confuzie", interactive=False)
         else:
-            gr.Markdown("⚠️ Fișierul 'matrice_confuzie.png' nu a fost găsit. Rulează mai întâi scriptul baseline_model.py!")
+            gr.Markdown("Fișierul 'matrice_confuzie.png' nu a fost găsit. Rulează mai întâi scriptul baseline_model.py!")
 
     buton_analizeaza.click(
         fn=prezice_necesitate_aparat, 
@@ -91,5 +91,4 @@ with gr.Blocks() as demo:
     )
 
 if __name__ == "__main__":
-    # Lansăm tema Soft direct în metoda launch() pentru a evita UserWarning-ul raportat anterior
     demo.launch(theme=gr.themes.Soft(primary_hue="purple"))

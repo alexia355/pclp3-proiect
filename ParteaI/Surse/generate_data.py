@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+#Generare date cu ajutorul unui seed
 def genereaza_date_ortodontie(num_pacienti, seed_val=42):
     np.random.seed(seed_val)
     varsta = np.random.randint(8, 51, size=num_pacienti)
